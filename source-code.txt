@@ -1,0 +1,180 @@
+from flask import Flask, request, jsonify
+import requests
+
+app = Flask(__name__)
+
+@app.route('/sort', methods=['POST'])
+def sort_vector():
+    data = request.get_json()
+    vector = data.get('vector')
+    if vector:
+        maximum = max(vector)
+        return jsonify({'result': maximum})
+    else:
+        return jsonify({'error': 'Invalid data'}), 400
+
+if __name__ == '__main__':
+    app.run(port=5000)
+
+
+--------------------------------------------------------------
+from flask import Flask, request, jsonify
+import requests
+
+app = Flask(__name__)
+
+@app.route('/sort', methods=['POST'])
+def sort_vector():
+    data = request.get_json()
+    vector = data.get('vector')
+    if vector:
+        minimum = min(vector)
+        return jsonify({'result': minimum})
+    else:
+        return jsonify({'error': 'Invalid data'}), 400
+
+if __name__ == '__main__':
+    app.run(port=5001)
+-------------------------------------------------------------
+import requests
+
+# SERVICE 1
+data = {'vector': [5, 3, 1, 4, 2]}
+response = requests.post('http://localhost:5000/sort', json=data)
+if response.ok:
+    result = response.json()
+    sorted_vector = result.get('sorted_vector')
+    print('Sorted vector:', sorted_vector)
+else:
+    print('Error:', response.text)
+
+# SERVICE 2
+data = {'vector': [5, 3, 1, 4, 2]}
+response = requests.post('http://localhost:5001/sort', json=data)
+if response.ok:
+    result = response.json()
+    sorted_vector = result.get('sorted_vector')
+    print('Sorted vector:', sorted_vector)
+else:
+    print('Error:', response.text)
+
+---------------------------------------------------------------
+using System;
+using System.Collections.Generic;
+using System.Net.Http;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace SortMicroserviceExample
+{
+    class Program
+    {
+        static async Task test_asc()
+        {
+            // Set the vector to sort
+            var vector = new List<int> { 5, 3, 1, 4, 2, 10, 120 };
+
+            // Create the request payload
+            var payload = new Dictionary<string, List<int>>
+            {
+                { "vector", vector }
+            };
+
+            // Convert the payload to JSON
+            var jsonPayload = Newtonsoft.Json.JsonConvert.SerializeObject(payload);
+
+            // Set the URL of the microservice
+            var apiUrl = "http://localhost:5000/sort";
+
+            // Create a HttpClient instance
+            using (var httpClient = new HttpClient())
+            {
+                // Create a HttpRequestMessage with the JSON payload
+                var request = new HttpRequestMessage(HttpMethod.Post, apiUrl);
+                request.Content = new StringContent(jsonPayload, Encoding.UTF8, "application/json");
+
+                // Send the request and get the response
+                var response = await httpClient.SendAsync(request);
+
+                // Check if the request was successful
+                if (response.IsSuccessStatusCode)
+                {
+                    // Read the response content
+                    var responseContent = await response.Content.ReadAsStringAsync();
+
+                    // Deserialize the response JSON
+                    var result = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, int>>(responseContent);
+
+                    // Get the sorted vector from the response
+                    var sortedVector = result["result"];
+
+                    // Print the sorted vector
+                    Console.WriteLine("Maximum: " + string.Join(", ", sortedVector));
+                }
+                else
+                {
+                    Console.WriteLine("Error: " + response.StatusCode);
+                }
+            }
+            Console.ReadLine();
+        }
+
+        static async Task test_desc()
+        {
+            // Set the vector to sort
+            var vector = new List<int> { 5, 3, 1, 4, 2, 10, -1 };
+
+            // Create the request payload
+            var payload = new Dictionary<string, List<int>>
+            {
+                { "vector", vector }
+            };
+
+            // Convert the payload to JSON
+            var jsonPayload = Newtonsoft.Json.JsonConvert.SerializeObject(payload);
+
+            // Set the URL of the microservice
+            var apiUrl = "http://localhost:5001/sort";
+
+            // Create a HttpClient instance
+            using (var httpClient = new HttpClient())
+            {
+                // Create a HttpRequestMessage with the JSON payload
+                var request = new HttpRequestMessage(HttpMethod.Post, apiUrl);
+                request.Content = new StringContent(jsonPayload, Encoding.UTF8, "application/json");
+
+                // Send the request and get the response
+                var response = await httpClient.SendAsync(request);
+
+                // Check if the request was successful
+                if (response.IsSuccessStatusCode)
+                {
+                    // Read the response content
+                    var responseContent = await response.Content.ReadAsStringAsync();
+
+                    // Deserialize the response JSON
+                    var result = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<string, int>>(responseContent);
+
+                    // Get the sorted vector from the response
+                    var sortedVector = result["result"];
+
+                    // Print the sorted vector
+                    Console.WriteLine("Minimum: " + string.Join(", ", sortedVector));
+                }
+                else
+                {
+                    Console.WriteLine("Error: " + response.StatusCode);
+                }
+            }
+            Console.ReadLine();
+        }
+
+        static async Task Main(string[] args)
+        {
+            await test_asc();
+            await test_desc();
+        }
+    }
+}
+
+
